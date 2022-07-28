@@ -1,0 +1,70 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://src/Player.gd" type="Script" id=1]
+[ext_resource path="res://jump.wav" type="AudioStream" id=2]
+[ext_resource path="res://die.wav" type="AudioStream" id=3]
+[ext_resource path="res://dash.wav" type="AudioStream" id=4]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 1.45, 1.45 )
+
+[sub_resource type="Shader" id=2]
+code = "shader_type canvas_item;
+
+uniform float zoom;
+
+void fragment(){
+	float dist = distance(UV, vec2(0.5,0.5));
+	float col = float((dist > zoom) && (dist < zoom + 1.0));
+	COLOR = vec4(0,0,0,col);
+}"
+
+[sub_resource type="ShaderMaterial" id=3]
+shader = SubResource( 2 )
+shader_param/zoom = 1.0
+
+[node name="Player" type="KinematicBody2D"]
+collision_mask = 3
+script = ExtResource( 1 )
+accel = 8.0
+jumpHeight = 185.0
+dashLength = 13
+dashStrength = 78.0
+coyoteFrames = 10
+friction = 0.86
+gravity = 8.0
+noDashColor = Color( 0.129412, 0.815686, 1, 1 )
+hasDashColor = Color( 1, 0.192157, 0.513726, 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( 1.5, 1.5 )
+shape = SubResource( 1 )
+
+[node name="Polygon2D2" type="Polygon2D" parent="."]
+polygon = PoolVector2Array( 0, 0, 3, 0, 3, 3, 0, 3 )
+
+[node name="deathEffect" type="ColorRect" parent="."]
+material = SubResource( 3 )
+margin_left = -70.0
+margin_top = -70.0
+margin_right = 70.0
+margin_bottom = 70.0
+
+[node name="dash" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
+volume_db = -9.613
+pitch_scale = 0.86
+
+[node name="jump" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 2 )
+volume_db = -4.37
+
+[node name="die" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+volume_db = -1.748
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2( 1, 1 )
+current = true
+smoothing_enabled = true
+smoothing_speed = 10.0
